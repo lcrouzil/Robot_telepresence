@@ -34,3 +34,4 @@ Nous étions en charge d'intégrer ROS au système existant afin de facilité le
 | 24             | Carte 2 - IN4         | MAR roue avant droite   |  
 
 ![Alt text](images/carte1.png?raw=true "Carte 1")
+![Alt text](images/carte2.png?raw=true "Carte 1")  
