@@ -35,21 +35,24 @@ Concernant les bibliotheque il faudra ajouter ros.h, servo.h ainsi que geometry_
 ## RASPBERRY 
 
 Sur Ubuntu installer Real VNC Viewer :
-
+![Alt text](images/instalVNC.png?raw=true "instal VNC")
 
 Une fois Real VNC installé et ouvert :
-
+![Alt text](images/iprspb.png?raw=true "ip raspberry")
 
 Renseigner le mot de passe (mdp : password):
-
+![Alt text](images/mdp.png?raw=true "mot de passe")
 
 Une fois sur le raspberry pi lancer un terminal (click droit sur le bureau) :
-
+![Alt text](images/menuRaspby.png?raw=true "menu Raspberry")
 
 Lancer la commande ./ros.py sur le terminal (Mdp : 12341234) :
+![Alt text](images/terminalRaspby.png?raw=true "terminal Raspberry")
 
 
 Une fois l’application lancée vous pouvez gérer le robot depuis l’application :
+![Alt text](images/fin_raspby.png?raw=true "menu de commande du Raspberry")
+
 
 ## Cablage des moteurs
 
