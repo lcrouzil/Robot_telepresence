@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/pi/robot_telepresence_ws/devel/setup.sh
