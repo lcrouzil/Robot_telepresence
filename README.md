@@ -69,7 +69,8 @@ Une fois l’application lancée vous pouvez gérer le robot depuis l’applicat
 | 4              | Carte 2 - IN1         | MAV roue avant gauche   |
 | 3              | Carte 2 - ENB         |                         |
 | 26             | Carte 2 - IN3         | MAV roue avant droite   |
-| 24             | Carte 2 - IN4         | MAR roue avant droite   |  
+| 24             | Carte 2 - IN4         | MAR roue avant droite   |
+| 2              |                       | servomoteur caméra      |
 
   
 ![Alt text](images/carte1.png?raw=true "Carte 1")
