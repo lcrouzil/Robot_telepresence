@@ -15,6 +15,41 @@ Nous étions en charge d'intégrer ROS au système existant afin de facilité le
 - Arduino mega 2560  
 - 2 cartes controle moteurs L298N (pont en H)  
 - 4 moteurs DC 12V  
+- 4 roues omnidirectionnelles
+- écran
+- haut parleur 
+- webcam
+- ventilateur
+- servomoteur
+- difuseur d'air 
+- support carte arduino, raspbery et carte son
+- support batterie
+
+## ROS Arduino
+
+Afin de pouvoir programmer la carte arduino avec ROS il faudra au préalable installer les bibliotheques en suivant les indications de ce site http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup
+
+dans l’IDE d’arduino il faudra programmer le type de carte sur arduino mega adk ainsi que choisir le port avant de téléversé
+Concernant les bibliotheque il faudra ajouter ros.h, servo.h ainsi que geometry_msgs/Twist.h
+
+## RASPBERRY 
+
+Sur Ubuntu installer Real VNC Viewer :
+
+
+Une fois Real VNC installé et ouvert :
+
+
+Renseigner le mot de passe (mdp : password):
+
+
+Une fois sur le raspberry pi lancer un terminal (click droit sur le bureau) :
+
+
+Lancer la commande ./ros.py sur le terminal (Mdp : 12341234) :
+
+
+Une fois l’application lancée vous pouvez gérer le robot depuis l’application :
 
 ## Cablage des moteurs
 
