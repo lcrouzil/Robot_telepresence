@@ -53,7 +53,11 @@ Lancer la commande ./ros.py sur le terminal (Mdp : 12341234) :
 Une fois l’application lancée vous pouvez gérer le robot depuis l’application :
 ![Alt text](images/fin_raspby.png?raw=true "menu de commande du Raspberry")
 
-
+Précision : 
+- La vision doit se faire depuis Discord via Firefox
+- Pour lancer la visio il faut arrêter l'application du robot
+- Pour lancer l'application robot il faut que la caméra soit inutilisée.
+  
 ## Cablage des moteurs
 
 | N° PIN Arduino | Carte controle moteur | Désignation             |
