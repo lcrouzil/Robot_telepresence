@@ -1,0 +1,463 @@
+//INCLUDE
+ #include <ros.h>
+ #include <geometry_msgs/Twist.h>
+ #include "Arduino.h"
+ #include<Servo.h>
+
+ // varibales
+ int pwm = 0;
+ int etat=0;
+ Servo servo;
+ //linear
+  double xLinear = 0.00;
+  double yLinear = 0.00;
+  double zLinear = 0.00;
+  //angular
+  double xAngular = 0.00;
+  double yAngular = 0.00;
+  double zAngular = 0.00;
+  
+
+//ROS node
+ros::NodeHandle  nh;
+
+void pose(const geometry_msgs::Twist& pose_msg){
+  //linear
+  xLinear = pose_msg.linear.x;
+  yLinear = pose_msg.linear.y;
+  zLinear = pose_msg.linear.z;
+  //angular
+  xAngular = pose_msg.angular.x;
+  yAngular = pose_msg.angular.y;
+  zAngular = pose_msg.angular.z;
+
+  
+
+  Serial.println("xLinear :");
+  Serial.print(xLinear);
+
+  Serial.println("y :");
+  Serial.print(yLinear);
+
+   Serial.println("z :");
+  Serial.print(zAngular);
+  
+  Serial.println("etat :");
+  Serial.print(etat);
+  
+   Serial.println("pwm :");
+  Serial.print(pwm);
+}
+
+//ROS subscriber
+ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", &pose );
+
+void setup() {
+  
+  pinMode(9, OUTPUT); // orange Gauche ENB
+  pinMode(12, OUTPUT); // orange gauche ENA
+  pinMode(10, OUTPUT); // vert GAUCHE IN2 roue arriere droite MAV
+  pinMode(11, OUTPUT); // JAune Gauche IN1 roue arriere droite MAR
+
+   pinMode(8, OUTPUT); // jaune  gauche IN 3 Arriere gauche MAR
+  pinMode(7, OUTPUT); // vert gauche IN3 roue arriere gauche MAV
+  pinMode(6, OUTPUT); // orange Droite ENA
+  pinMode(5, OUTPUT); // Jaune Droite IN2 roue arriere Gauche MAR
+
+  pinMode(4, OUTPUT); // vert droite IN1 Roue Avant Gauche MAV
+  pinMode(3, OUTPUT); // orange droite ENB 
+  pinMode(26, OUTPUT); // vert IN3 Avant droite MAV
+  pinMode(24, OUTPUT); // Jaune Pin4 Avant droite MAR
+
+  //servo
+  servo.attach(2);// pin du servo sur 2
+  
+  //ROS
+  
+  nh.initNode();
+  nh.subscribe(sub);
+  
+  ///Serial.begin(9600);
+      // Génération du signal PWM, avec le rapport cyclique voulu
+  Serial.begin(57600);
+
+}
+
+void loop() {
+
+
+Serial.println("XLinear");
+Serial.print(xLinear);
+
+  //condition avance
+  if(xLinear!=0.00 && yLinear ==0.00 && zAngular ==0.00){
+    pwm = (155*xLinear);
+    etat = 1;
+  }
+  
+  //condition recule
+   if(xLinear<0.0 && yLinear ==0.0 && zAngular ==0.0){
+    pwm=(-155*xLinear);
+    etat = 2;
+  }
+
+  //condition droite sur place
+   if(xLinear==0.0 && yLinear >0.0 && zAngular ==0.0){
+    pwm=(155*yLinear);
+    etat = 3;
+  }
+
+  //condition gauche sur place
+   if(xLinear==0.0 && yLinear <0.0 && zAngular ==0.0){
+    pwm=(-155*yLinear);
+    etat = 4;
+  }
+
+  //condition recule gauche
+   if(xLinear<0.0 && yLinear ==0.0 && zAngular <0.0){
+    pwm=30;
+    etat = 5;
+  } 
+
+  //condition avance gauche
+   if(xLinear>0.0 && yLinear ==0.0 && zAngular <0.0){
+    pwm = (155*xLinear); //pwm=30 avant changement
+    etat = 6;
+  } 
+
+   //condition recule droite
+   if(xLinear<0.0 && yLinear == 0.0 && zAngular >0.0){
+    pwm=30;
+    etat = 7;
+  } 
+
+  //condition avance droite
+   if(xLinear>0.0 && yLinear == 0.0 && zAngular >0.0){
+    pwm = (155*xLinear); //pwm=30 avant changement
+    etat = 8;
+  } 
+
+  //condition rotation droite sur lui même
+   if(xLinear==0.0 && yLinear == 0.0 && zAngular >0.0){
+    pwm=100; //30 ne fonctionne pas 
+    etat = 9;
+  } 
+
+  //condition rotation gauche sur lui même 
+   if(xLinear==0.0 && yLinear == 0.0 && zAngular <0.0){
+    pwm=100; //30 ne fonctionne pas 
+    etat = 10;
+  } 
+
+  //condition stop
+  if(xLinear==0.0 && yLinear ==0.0 && zAngular ==0.0){
+    pwm = 0;
+    etat=0;
+  }
+
+  if(xAngular==0){
+    servo.write(0);
+  }else{
+    servo.write(30);
+  }
+
+  Serial.println(etat);
+  
+  switch (etat) {
+////////////////////////////////////////////////////
+   case 0://arret
+   analogWrite(12, pwm); // arriere droite
+   analogWrite(9, pwm); //arriere gauche 
+   analogWrite(6, pwm); //avant gauche
+   analogWrite(3, pwm); //avant droite
+   
+   //roue arriere droite
+   digitalWrite(10,LOW); //MAV
+   digitalWrite(11,LOW); //MAR
+
+   //roue arriere gauche
+   digitalWrite(7,LOW); //MAV
+   digitalWrite(8,LOW); //MAR
+
+   //roue avant droite
+   digitalWrite(26,LOW); //MAV
+   digitalWrite(24,LOW); //MAR
+
+   //roue avant gauche
+   digitalWrite(4,LOW); //MAV
+   digitalWrite(5,LOW); //MAR 
+
+   break;
+/////////////////////////////////////////////////////////  
+  case 1://avance
+   analogWrite(12, pwm); // arriere droite
+   analogWrite(9, pwm); //arriere gauche 
+   analogWrite(6, pwm); //avant gauche
+   analogWrite(3, pwm); //avant droite
+   
+   //roue arriere droite
+   digitalWrite(10,HIGH); //MAV
+   digitalWrite(11,LOW); //MAR
+
+   //roue arriere gauche
+   digitalWrite(7,HIGH); //MAV
+   digitalWrite(8,LOW); //MAR
+
+   //roue avant droite
+   digitalWrite(26,HIGH); //MAV
+   digitalWrite(24,LOW); //MAR
+
+   //roue avant gauche
+   digitalWrite(4,HIGH); //MAV
+   digitalWrite(5,LOW); //MAR 
+  
+    break;
+/////////////////////////////////////////////////////////  
+  case 2: //arriere 
+   analogWrite(12, pwm); // arriere droite
+   analogWrite(9, pwm); //arriere gauche 
+   analogWrite(6, pwm); //avant gauche
+   analogWrite(3, pwm); //avant droite
+   
+   //roue arriere droite
+   digitalWrite(10,LOW); //MAV
+   digitalWrite(11,HIGH); //MAR
+
+   //roue arriere gauche
+   digitalWrite(7,LOW); //MAV
+   digitalWrite(8,HIGH); //MAR
+
+   //roue avant droite
+   digitalWrite(26,LOW); //MAV
+   digitalWrite(24,HIGH); //MAR
+
+   //roue avant gauche
+   digitalWrite(4,LOW); //MAV
+   digitalWrite(5,HIGH); //MAR 
+    
+    break;
+/////////////////////////////////////////////////////////    
+  case 3: //droite sur place
+   analogWrite(12, pwm); // arriere droite
+   analogWrite(9, pwm); //arriere gauche 
+   analogWrite(6, pwm); //avant gauche
+   analogWrite(3, pwm); //avant droite
+   
+   //roue arriere droite
+   digitalWrite(10,HIGH); //MAV
+   digitalWrite(11,LOW); //MAR
+
+   //roue arriere gauche
+   digitalWrite(7,LOW); //MAV
+   digitalWrite(8,HIGH); //MAR
+
+   //roue avant droite
+   digitalWrite(26,LOW); //MAV
+   digitalWrite(24,HIGH); //MAR
+
+   //roue avant gauche
+   digitalWrite(4,HIGH); //MAV
+   digitalWrite(5,LOW); //MAR 
+    
+    break;
+////////////////////////////////////////////////////////
+   case 4: //gauche sur place
+   analogWrite(12, pwm); // arriere droite
+   analogWrite(9, pwm); //arriere gauche 
+   analogWrite(6, pwm); //avant gauche
+   analogWrite(3, pwm); //avant droite
+   
+   //roue arriere droite
+   digitalWrite(10,LOW); //MAV
+   digitalWrite(11,HIGH); //MAR
+
+   //roue arriere gauche
+   digitalWrite(7,HIGH); //MAV
+   digitalWrite(8,LOW); //MAR
+
+   //roue avant droite
+   digitalWrite(26,HIGH); //MAV
+   digitalWrite(24,LOW); //MAR
+
+   //roue avant gauche
+   digitalWrite(4,LOW); //MAV
+   digitalWrite(5,HIGH); //MAR 
+    
+    break;
+//////////////////////////////////////////////////////////
+   case 5: //gauche en mouvement arriere
+   analogWrite(12, pwm); // arriere droite
+   analogWrite(9, pwm/2); //arriere gauche voir pour rotation avec var
+   analogWrite(6, pwm/2); //avant gauche 
+   analogWrite(3, pwm); //avant droite
+   
+   //roue arriere droite
+   digitalWrite(10,LOW); //MAV
+   digitalWrite(11,HIGH); //MAR
+
+   //roue arriere gauche
+   digitalWrite(7,LOW); //MAV
+   digitalWrite(8,HIGH); //MAR
+
+   //roue avant droite
+   digitalWrite(26,LOW); //MAV
+   digitalWrite(24,HIGH); //MAR
+
+   //roue avant gauche
+   digitalWrite(4,LOW); //MAV
+   digitalWrite(5,HIGH); //MAR 
+    
+    break;
+///////////////////////////////////////////////////////    
+   case 6: //gauche en mouvement avant
+   
+     analogWrite(12, pwm); // arriere droite
+     analogWrite(9, pwm+(pwm*zAngular)); //arriere gauche 
+     analogWrite(6, pwm+(pwm*zAngular)); //avant gauche voir pour rotation avec var
+     analogWrite(3, pwm); //avant droite 
+   
+   //roue arriere droite
+   digitalWrite(10,HIGH); //MAV
+   digitalWrite(11,LOW); //MAR
+
+   //roue arriere gauche
+   digitalWrite(7,HIGH); //MAV
+   digitalWrite(8,LOW); //MAR
+
+   //roue avant droite
+   digitalWrite(26,HIGH); //MAV
+   digitalWrite(24,LOW); //MAR
+
+   //roue avant gauche
+   digitalWrite(4,HIGH); //MAV
+   digitalWrite(5,LOW); //MAR 
+    
+    break;
+//////////////////////////////////////////////////////
+   case 7: //droite en mouvement arriere
+   analogWrite(12, pwm/2); // arriere droite
+   analogWrite(9, pwm); //arriere gauche voir pour rotation avec var
+   analogWrite(6, pwm); //avant gauche 
+   analogWrite(3, pwm/2); //avant droite
+   
+   //roue arriere droite
+   digitalWrite(10,LOW); //MAV
+   digitalWrite(11,HIGH); //MAR
+
+   //roue arriere gauche
+   digitalWrite(7,LOW); //MAV
+   digitalWrite(8,HIGH); //MAR
+
+   //roue avant droite
+   digitalWrite(26,LOW); //MAV
+   digitalWrite(24,HIGH); //MAR
+
+   //roue avant gauche
+   digitalWrite(4,LOW); //MAV
+   digitalWrite(5,HIGH); //MAR 
+   
+   break;
+////////////////////////////////////////////////////////
+   case 8: //droite en mouvement avant
+   analogWrite(12, (pwm-(pwm*zAngular))); // arriere droite
+   analogWrite(9, pwm); //arriere gauche 
+   analogWrite(6, pwm); //avant gauche 
+   analogWrite(3, (pwm-(pwm*zAngular))); //avant droite
+   
+   //roue arriere droite
+   digitalWrite(10,HIGH); //MAV
+   digitalWrite(11,LOW); //MAR
+
+   //roue arriere gauche
+   digitalWrite(7,HIGH); //MAV
+   digitalWrite(8,LOW); //MAR
+
+   //roue avant droite
+   digitalWrite(26,HIGH); //MAV
+   digitalWrite(24,LOW); //MAR
+
+   //roue avant gauche
+   digitalWrite(4,HIGH); //MAV
+   digitalWrite(5,LOW); //MAR 
+    
+    break;
+///////////////////////////////////////////////////////
+   case 9: //rotation droite sur place 
+   analogWrite(12, pwm); // arriere droite
+   analogWrite(9, pwm); //arriere gauche 
+   analogWrite(6, pwm); //avant gauche 
+   analogWrite(3, pwm); //avant droite
+   
+   //roue arriere droite
+   digitalWrite(10,LOW); //MAV
+   digitalWrite(11,HIGH); //MAR
+
+   //roue arriere gauche
+   digitalWrite(7,HIGH); //MAV
+   digitalWrite(8,LOW); //MAR
+
+   //roue avant droite
+   digitalWrite(26,LOW); //MAV
+   digitalWrite(24,HIGH); //MAR
+
+   //roue avant gauche
+   digitalWrite(4,HIGH); //MAV
+   digitalWrite(5,LOW); //MAR 
+    
+    break;
+
+///////////////////////////////////////////////////////
+   case 10: //rotation gauche sur place 
+   analogWrite(12, pwm); // arriere droite
+   analogWrite(9, pwm); //arriere gauche 
+   analogWrite(6, pwm); //avant gauche 
+   analogWrite(3, pwm); //avant droite
+   
+   //roue arriere droite
+   digitalWrite(10,HIGH); //MAV
+   digitalWrite(11,LOW); //MAR
+
+   //roue arriere gauche
+   digitalWrite(7,LOW); //MAV
+   digitalWrite(8,HIGH); //MAR
+
+   //roue avant droite
+   digitalWrite(26,HIGH); //MAV
+   digitalWrite(24,LOW); //MAR
+
+   //roue avant gauche
+   digitalWrite(4,LOW); //MAV
+   digitalWrite(5,HIGH); //MAR 
+    
+    break;
+}
+
+//  //EN A-B
+//   analogWrite(12, 50); // arriere droite
+//   analogWrite(9, 50); //arriere gauche 
+//   analogWrite(6, 50); //avant gauche
+//   analogWrite(3, 50); //avant droite
+//
+//   //roue arriere droite
+//   digitalWrite(10,HIGH); //MAV
+//   digitalWrite(11,LOW); //MAR
+//
+//   //roue arriere gauche
+//   digitalWrite(7,HIGH); //MAV
+//   digitalWrite(8,LOW); //MAR
+//
+//   //roue avant droite
+//   digitalWrite(26,HIGH); //MAV
+//   digitalWrite(24,LOW); //MAR
+//
+//   //roue avant gauche
+//   digitalWrite(4,HIGH); //MAV
+//   digitalWrite(5,LOW); //MAR
+   
+   //ROS
+   
+   nh.spinOnce();
+   
+
+  delay(100);
+}
